@@ -65,6 +65,7 @@ const ButtonContainer = styled.div`
  * https://reactjs.org/docs/react-component.html
  * @Class
  */
+
 class Login extends React.Component {
   /**
    * If you don’t initialize the state and you don’t bind methods, you don’t need to implement a constructor for your React component.
@@ -75,7 +76,7 @@ class Login extends React.Component {
   constructor() {
     super();
     this.state = {
-      name: null,
+      password: null,
       username: null
     };
   }
@@ -84,6 +85,39 @@ class Login extends React.Component {
    * If the request is successful, a new user is returned to the front-end and its token is stored in the localStorage.
    */
   login() {
+    fetch(`${getDomain()}/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: this.state.username,
+        password: this.state.password
+      })
+    })
+        .then(response => response.json())
+        .then(returnedUser => {
+          const user = new User(returnedUser);
+          // store the token into the local storage
+          localStorage.setItem("token", user.token);
+          localStorage.setItem("id", user.id);
+          localStorage.setItem("birthday", user.birthday);
+          localStorage.setItem("username", this.state.username);
+          localStorage.setItem("password", this.state.password);
+          // user login successfully worked --> navigate to the route /game in the GameRouter
+          this.props.history.push(`/game`);
+        })
+        .catch(err => { /*
+        if (err.message.match(/Failed to fetch/)) {
+          alert("The server cannot be reached. Did you start it?");
+        } else {
+          alert(`Something went wrong during the login: ${err.message}`);
+        }*/
+          this.props.history.push(`/FailedRegister`);
+        });
+  }
+
+  register() {
     fetch(`${getDomain()}/users`, {
       method: "POST",
       headers: {
@@ -91,24 +125,21 @@ class Login extends React.Component {
       },
       body: JSON.stringify({
         username: this.state.username,
-        name: this.state.name
+        password: this.state.password
       })
     })
-      .then(response => response.json())
-      .then(returnedUser => {
-        const user = new User(returnedUser);
-        // store the token into the local storage
-        localStorage.setItem("token", user.token);
-        // user login successfully worked --> navigate to the route /game in the GameRouter
-        this.props.history.push(`/game`);
-      })
-      .catch(err => {
-        if (err.message.match(/Failed to fetch/)) {
-          alert("The server cannot be reached. Did you start it?");
-        } else {
-          alert(`Something went wrong during the login: ${err.message}`);
-        }
-      });
+        .then(response => response.json())
+        .then(returnedUser => {
+          this.props.history.push(`/register`);
+        })
+        .catch(err => {
+          /*if (err.message.match(/Failed to fetch/)) {
+            alert("The server cannot be reached. Did you start it?");
+          } else {
+            alert(`Something went wrong during the login: ${err.message}`);
+          }*/
+          this.props.history.push(`/FailedRegister`);
+        });
   }
 
   /**
@@ -133,37 +164,46 @@ class Login extends React.Component {
 
   render() {
     return (
-      <BaseContainer>
-        <FormContainer>
-          <Form>
-            <Label>Username</Label>
-            <InputField
-              placeholder="Enter here.."
-              onChange={e => {
-                this.handleInputChange("username", e.target.value);
-              }}
-            />
-            <Label>Name</Label>
-            <InputField
-              placeholder="Enter here.."
-              onChange={e => {
-                this.handleInputChange("name", e.target.value);
-              }}
-            />
-            <ButtonContainer>
-              <Button
-                disabled={!this.state.username || !this.state.name}
-                width="50%"
-                onClick={() => {
-                  this.login();
-                }}
-              >
-                Login
-              </Button>
-            </ButtonContainer>
-          </Form>
-        </FormContainer>
-      </BaseContainer>
+        <BaseContainer>
+          <FormContainer>
+            <Form>
+              <Label>Username</Label>
+              <InputField
+                  placeholder="Enter here.."
+                  onChange={e => {
+                    this.handleInputChange("username", e.target.value);
+                  }}
+              />
+              <Label>Password</Label>
+              <InputField
+                  placeholder="Enter here.."
+                  onChange={e => {
+                    this.handleInputChange("password", e.target.value);
+                  }}
+              />
+              <ButtonContainer>
+                <Button
+                    disabled={!this.state.username || !this.state.password}
+                    width="50%"
+                    onClick={() => {
+                      this.login();
+                    }}
+                >
+                  Login
+                </Button>
+                <Button
+                    disabled={!this.state.username || !this.state.password}
+                    width="50%"
+                    onClick={() => {
+                      this.register();
+                    }}
+                >
+                  Register
+                </Button>
+              </ButtonContainer>
+            </Form>
+          </FormContainer>
+        </BaseContainer>
     );
   }
 }
