@@ -27,7 +27,7 @@ class FailedRegister extends React.Component {
         return (
             <Container>
                 <h2>Oh no! </h2>
-                <p>The username and password was wrong...</p>
+                <p>Username and/or password were wrong!</p>
                 <div>
                     <Button
                         width="50%"
