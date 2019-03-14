@@ -67,6 +67,7 @@ const ButtonContainer = styled.div`
  * https://reactjs.org/docs/react-component.html
  * @Class
  */
+
 class Login extends React.Component {
     /**
      * If you don’t initialize the state and you don’t bind methods, you don’t need to implement a constructor for your React component.
@@ -85,6 +86,7 @@ class Login extends React.Component {
             userAlreadyRegistered: false
         };
     }
+
     /**
      * HTTP POST request is sent to the backend.
      * If the request is successful, a new user is returned to the front-end and its token is stored in the localStorage.
@@ -106,14 +108,16 @@ class Login extends React.Component {
             .then((response) => {
 
                 if (response.status === 403){
+                    alert("Oh no error occured!")
                     this.setState({message: "Wrong password"})
 
-
                 } else if (response.status === 404){
+                    alert("User doesn't exist. You have to register first.")
                     this.setState({message: "User does not exist, please register first"})
 
                 } else if (response.status === 409) {
-                    this.setState({message: "Username or password wrong"})
+                    alert("Oh no error occured.")
+                    this.setState({message: "Your credentials are wrong."})
 
                 } else {
 
@@ -160,7 +164,7 @@ class Login extends React.Component {
      * You may call setState() immediately in componentDidMount().
      * It will trigger an extra rendering, but it will happen before the browser updates the screen.
      */
-    componentDidMount() {}
+   // componentDidMount() {}
 
     render() {
         return (
@@ -182,7 +186,7 @@ class Login extends React.Component {
                                 this.handleInputChange("password", e.target.value);
                             }}
                         />
-                        <Label>Login with your credentials. If you are a new user press the Register Button</Label>
+                        <Label>Login your account or create a new one with "Register"</Label>
                         <ButtonContainer>
                             <Button
                                 disabled={!this.state.username || !this.state.password}

@@ -73,7 +73,5 @@ class AppRouter extends React.Component {
         </BrowserRouter>;
     }
 }
-/*
-* Don't forget to export your component!
- */
+
 export default AppRouter;

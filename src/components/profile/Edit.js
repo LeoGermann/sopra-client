@@ -82,9 +82,8 @@ class Edit extends React.Component{
         })
             .then(res => {
                 if(res.status ===404){
-                    window.alert("User Id (und damit der User) existiert nicht!");
+                    alert("User doesn't exist. (no ID)");
                 }else{
-                    //localStorage.setItem("loggedInAs", res.username);
                     user.username = this.state.username;
                     user.birthday = this.state.birthday;
                     this.props.history.push({
@@ -105,12 +104,9 @@ class Edit extends React.Component{
         });
     }
 
-    componentDidMount() {
+  //  componentDidMount() {}
 
-    }
-
-
-    render() {
+    render(){
         let user = this.props.location.state.user;
         return(
             <BaseContainer>
@@ -133,7 +129,7 @@ class Edit extends React.Component{
                                 type="date"
                                 name="birthday"
                                 min="1900-01-01"
-                                max="2019-03-13"
+                                max="2019-03-14"
                                 onChange={e => {
                                     this.handleInputChange("birthday", e.target.value);
                                 }}

@@ -102,7 +102,7 @@ class Profile extends React.Component {
     redirectEdit(user){
         this.props.history.push({
             pathname: `/Edit`,
-            state: {user: user} //orange user gets white name for edit page
+            state: {user: user}
         });
     }
 
@@ -116,10 +116,10 @@ class Profile extends React.Component {
                 this.setState({creationDate: localStorage.getItem("creationDate")});
                 this.setState({id: user.id});
                 this.setState({isProfileOwner: localStorage.getItem("visitedUserId") === localStorage.getItem("loggedInUserId")});
-                console.log(`logged in as ${this.state.loggedInUser}`)
+                console.log(`Current User: ${this.state.loggedInUser}`)
             })
             .catch(() => {
-                alert("Could not fetch user data");
+                alert("Could not fetch user data.");
             })
 
     }

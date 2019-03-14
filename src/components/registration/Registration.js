@@ -90,7 +90,7 @@ class Registration extends React.Component {
      */
 //alert("Got to register()");
     register() {
-        fetch(`${getDomain()}/users`, { //try registering user
+        fetch(`${getDomain()}/users`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -103,11 +103,10 @@ class Registration extends React.Component {
         })
             .then(response => {
                 if(!(response.status === 201)) {
-                    console.log(`ERROR: Failed to register already existing user ${this.state.username} with CONFLICT`);
+                    console.log(`Failed to register already existing user ${this.state.username} with CONFLICT`);
                     alert("Username already exist or other conflict.");
                     window.location.reload();
                 } else {
-                    //console.log(`OK: Successfully registered user ${this.state.username} with:`);
                     this.setState({registered: true});
                     return response;
                 }
@@ -128,7 +127,7 @@ class Registration extends React.Component {
             })
             .then(() => {
                 if(this.state.registered) {
-                    alert("Registration successful. Try logging in with your new user credentials");
+                    alert("You are registered now! Go to the login page to login!");
                 }
             })
     }
@@ -152,9 +151,7 @@ class Registration extends React.Component {
      * You may call setState() immediately in componentDidMount().
      * It will trigger an extra rendering, but it will happen before the browser updates the screen.
      */
-    componentDidMount() {}
-
-
+    //componentDidMount() {}
 
     render() {
         return (
@@ -202,8 +199,8 @@ class Registration extends React.Component {
                                 }}
                             />
                         </form>
-                        <p/> {/* newline */}
-                        <Label>Press Register to go back to the Login page</Label>
+                        <p/>
+                        <Label>Click "Register" to go back to the login page.</Label>
                         <ButtonContainer>
                             <Button
                                 disabled={!this.state.username || !this.state.password || !this.state.birthday}

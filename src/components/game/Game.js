@@ -33,7 +33,6 @@ class Game extends React.Component {
     }
 
     logout(id) {
-        //Clear localstorage and update user status to OFFLINE.
         localStorage.removeItem("token");
 
         fetch(`${getDomain()}/logout/${id}`, {
@@ -45,7 +44,8 @@ class Game extends React.Component {
             .then(response => response.json())
             .then(res => {
                 if (res.status === 404){
-                    window.alert("User not found.")
+                    //removed window.
+                    alert("User not found.")
                 } else {
                     this.props.history.push("/login");
                 }
@@ -80,15 +80,13 @@ class Game extends React.Component {
     render() {
         return (
             <Container>
-                <h2>Happy Coding! </h2>
-                <p>Get all users from secure end point:</p>
+                <h2>Santorini players </h2>
                 {!this.state.users ? (
                     <Spinner />
                 ) : (
                     <div>
                         <Users>
                             {this.state.users.map(user => {
-                                //console.log(`user has cdate ${user.creationDate}`);
                                 return (
                                     <PlayerContainer key={user.id}>
                                         <Player user={user}/>
