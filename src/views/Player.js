@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
+import Link from "react-router-dom/es/Link";
 
 const Container = styled.div`
   margin: 6px 0;
-  width: 280px;
+  width: 500px;
   padding: 10px;
   border-radius: 6px;
   display: flex;
@@ -11,20 +12,37 @@ const Container = styled.div`
   border: 1px solid #ffffff26;
 `;
 
-const UserName = styled.div`
-  font-weight: lighter;
+const Username = styled.div`
   margin-left: 5px;
+  margin-right: 5px;
+  font-weight: bolder;
+  text-decoration: underline;
 `;
 
-const Password = styled.div`
-  font-weight: bold;
+const Birthday = styled.div`
+  font-weight: lighter;
   color: #06c4ff;
 `;
 
 const Id = styled.div`
   margin-left: auto;
   margin-right: 10px;
-  font-weight: bold;
+  font-weight: lighter;
+`;
+
+const CreationDate = styled.div`
+  margin-left: auto;
+  margin-right: 10px;
+  font-weight: lighter;
+  color: aquamarine;
+`;
+
+const LinkWord = styled(Link)`
+  color: beige;
+  text-decoration: none;
+  &:hover{
+  color: darkgrey;
+  }
 `;
 
 /**
@@ -35,11 +53,21 @@ const Id = styled.div`
  * https://reactjs.org/docs/components-and-props.html
  * @FunctionalComponent
  */
+
 const Player = ({ user }) => {
     return (
         <Container>
-            <Password>{user.password}</Password> <UserName>{user.username}</UserName>
+            <LinkWord
+                to={{pathname: `/profile`, state: {reference: user}}}>
+                <Username
+                    onClick={()=> {
+                        localStorage.setItem("visitedUserId", user.id);
+                    }}
+                > {user.username} </Username>
+            </LinkWord>
             <Id>Id: {user.id}</Id>
+            <CreationDate>CreationDate: {user.creationDate}</CreationDate>
+            <Birthday>BD: {user.birthday}</Birthday>
         </Container>
     );
 };

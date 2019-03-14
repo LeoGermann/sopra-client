@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { getDomain } from "../../helpers/getDomain";
-import User from "../shared/models/User";
+//import User from "../shared/models/User";
 import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 
@@ -26,7 +26,7 @@ const Form = styled.div`
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: linear-gradient(rgb(27, 124, 186), rgb(2, 46, 101));
+  background: linear-gradient(lawngreen, darkred);
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
@@ -65,8 +65,7 @@ const ButtonContainer = styled.div`
  * https://reactjs.org/docs/react-component.html
  * @Class
  */
-
-class EditProfile extends React.Component {
+class Registration extends React.Component {
     /**
      * If you don’t initialize the state and you don’t bind methods, you don’t need to implement a constructor for your React component.
      * The constructor for a React component is called before it is mounted (rendered).
@@ -76,50 +75,64 @@ class EditProfile extends React.Component {
     constructor() {
         super();
         this.state = {
-            birthday: null,
+            password: null,
             username: null,
+            birthday: null,
+            registered: false,
+            loginDenied: false
         };
+        this.today = new Date();
     }
+
     /**
      * HTTP POST request is sent to the backend.
      * If the request is successful, a new user is returned to the front-end and its token is stored in the localStorage.
      */
-    edit() {
-        let id = localStorage.getItem("id");
-        fetch(`${getDomain()}/users/${id}`, {
-            method: "PUT",
+//alert("Got to register()");
+    register() {
+        fetch(`${getDomain()}/users`, { //try registering user
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                id: localStorage.getItem("id"),
-                username: this.state.username,
                 birthday: this.state.birthday,
-                token: localStorage.getItem("token"),
-                password: localStorage.getItem("password")
+                password: this.state.password,
+                username: this.state.username
             })
         })
-            .then(response => response.json())
-            .then(returnedUser => {
-                const user = new User(returnedUser);
-                // store the token into the local storage
-                localStorage.setItem("token", user.token);
-                // user login successfully worked --> navigate to the route /game in the GameRouter
-                this.props.history.push(`/game`);
+            .then(response => {
+                if(!(response.status === 201)) {
+                    console.log(`ERROR: Failed to register already existing user ${this.state.username} with CONFLICT`);
+                    alert("Username already exist or other conflict.");
+                    window.location.reload();
+                } else {
+                    //console.log(`OK: Successfully registered user ${this.state.username} with:`);
+                    this.setState({registered: true});
+                    return response;
+                }
             })
-            .catch(err => { /*
-        if (err.message.match(/Failed to fetch/)) {
-          alert("The server cannot be reached. Did you start it?");
-        } else {
-          alert(`Something went wrong during the login: ${err.message}`);
-        }*/
-                this.props.history.push(`/FailedRegister`);
-            });
+
+            .catch(err => {
+                if (err.message.match(/Failed to fetch/)) {
+                    alert("The server cannot be reached. Did you start it?");
+                } else {
+                    alert(`Something went wrong during the registration: ${err.message}`);
+                    window.location.reload();
+                }
+            })
+            .then(() => {
+                if(this.state.registered) {
+                    this.props.history.push('/login');
+                }
+            })
+            .then(() => {
+                if(this.state.registered) {
+                    alert("Registration successful. Try logging in with your new user credentials");
+                }
+            })
     }
 
-    return() {
-        this.props.history.push(`/game`);
-    }
 
     /**
      *  Every time the user enters something in the input field, the state gets updated.
@@ -141,42 +154,65 @@ class EditProfile extends React.Component {
      */
     componentDidMount() {}
 
+
+
     render() {
         return (
             <BaseContainer>
                 <FormContainer>
                     <Form>
-                        <Label>New Username</Label>
+                        <Label>Username</Label>
                         <InputField
                             placeholder="Enter here.."
                             onChange={e => {
                                 this.handleInputChange("username", e.target.value);
                             }}
                         />
-                        <Label>New Birthday</Label>
+                        <Label>Password</Label>
                         <InputField
-                            placeholder="YYYY-MM-DD please.."
+                            type="password"
+                            placeholder="Enter here.."
                             onChange={e => {
-                                this.handleInputChange("birthday", e.target.value);
+                                this.handleInputChange("password", e.target.value);
                             }}
                         />
+                        <Label>Birthday</Label>
+                        <form action="/action_page.php">
+                            <input
+                                type="date"
+                                name="birthday"
+                                min="1900-01-01"
+                                max="2015-01-01"
+                                onChange={e => {
+                                    this.handleInputChange("birthday", e.target.value);
+                                }}
+
+                                {...() => {
+                                    let dd = this.today.getDate();
+                                    let mm = this.today.getMonth();
+                                    let yyyy = this.today.getFullYear();
+                                    if (dd < 10) {
+                                        dd = '0' + dd;
+                                    }
+                                    if (mm < 10) {
+                                        mm = '0' + mm;
+                                    }
+                                    let todayStr = yyyy + '-' + mm + '-' + dd;
+                                    document.getElementById("date").setAttribute("max", todayStr);
+                                }}
+                            />
+                        </form>
+                        <p/> {/* newline */}
+                        <Label>Press Register to go back to the Login page</Label>
                         <ButtonContainer>
                             <Button
-                                disabled={!this.state.username && !this.state.birthday}
-                                width="50%"
+                                disabled={!this.state.username || !this.state.password || !this.state.birthday}
+                                width="100%"
                                 onClick={() => {
-                                    this.edit();
+                                    this.register();
                                 }}
                             >
-                                Change Profile
-                            </Button>
-                            <Button
-                                width="50%"
-                                onClick={() => {
-                                    this.return();
-                                }}
-                            >
-                                Return
+                                Register
                             </Button>
                         </ButtonContainer>
                     </Form>
@@ -190,4 +226,4 @@ class EditProfile extends React.Component {
  * You can get access to the history object's properties via the withRouter.
  * withRouter will pass updated match, location, and history props to the wrapped component whenever it renders.
  */
-export default withRouter(EditProfile);
+export default withRouter(Registration);

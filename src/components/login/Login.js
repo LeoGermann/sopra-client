@@ -6,6 +6,8 @@ import User from "../shared/models/User";
 import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 
+
+
 const FormContainer = styled.div`
   margin-top: 2em;
   display: flex;
@@ -26,7 +28,7 @@ const Form = styled.div`
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: linear-gradient(rgb(27, 124, 186), rgb(2, 46, 101));
+  background: linear-gradient(lawngreen, darkred);
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
@@ -65,147 +67,146 @@ const ButtonContainer = styled.div`
  * https://reactjs.org/docs/react-component.html
  * @Class
  */
-
 class Login extends React.Component {
-  /**
-   * If you don’t initialize the state and you don’t bind methods, you don’t need to implement a constructor for your React component.
-   * The constructor for a React component is called before it is mounted (rendered).
-   * In this case the initial state is defined in the constructor. The state is a JS object containing two fields: name and username
-   * These fields are then handled in the onChange() methods in the resp. InputFields
-   */
-  constructor() {
-    super();
-    this.state = {
-      password: null,
-      username: null
-    };
-  }
-  /**
-   * HTTP POST request is sent to the backend.
-   * If the request is successful, a new user is returned to the front-end and its token is stored in the localStorage.
-   */
-  login() {
-    fetch(`${getDomain()}/users/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password
-      })
-    })
-        .then(response => response.json())
-        .then(returnedUser => {
-          const user = new User(returnedUser);
-          // store the token into the local storage
-          localStorage.setItem("token", user.token);
-          localStorage.setItem("id", user.id);
-          localStorage.setItem("birthday", user.birthday);
-          localStorage.setItem("username", this.state.username);
-          localStorage.setItem("password", this.state.password);
-          // user login successfully worked --> navigate to the route /game in the GameRouter
-          this.props.history.push(`/game`);
+    /**
+     * If you don’t initialize the state and you don’t bind methods, you don’t need to implement a constructor for your React component.
+     * The constructor for a React component is called before it is mounted (rendered).
+     * In this case the initial state is defined in the constructor. The state is a JS object containing two fields: name and username
+     * These fields are then handled in the onChange() methods in the resp. InputFields
+     */
+    constructor() {
+        super();
+        this.state = {
+            password: null,
+            username: null,
+            birthday: null,
+            creationDate: null,
+            loginDenied: false,
+            userAlreadyRegistered: false
+        };
+    }
+    /**
+     * HTTP POST request is sent to the backend.
+     * If the request is successful, a new user is returned to the front-end and its token is stored in the localStorage.
+     */
+
+    login() {
+        fetch(`${getDomain()}/logcheck`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            // creates a json String out of an object or array
+            body: JSON.stringify({
+                username: this.state.username,
+                password: this.state.password
+            })
+
         })
-        .catch(err => { /*
-        if (err.message.match(/Failed to fetch/)) {
-          alert("The server cannot be reached. Did you start it?");
-        } else {
-          alert(`Something went wrong during the login: ${err.message}`);
-        }*/
-          this.props.history.push(`/FailedRegister`);
-        });
-  }
+            .then((response) => {
 
-  register() {
-    fetch(`${getDomain()}/users`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password
-      })
-    })
-        .then(response => response.json())
-        .then(returnedUser => {
-          this.props.history.push(`/register`);
-        })
-        .catch(err => {
-          /*if (err.message.match(/Failed to fetch/)) {
-            alert("The server cannot be reached. Did you start it?");
-          } else {
-            alert(`Something went wrong during the login: ${err.message}`);
-          }*/
-          this.props.history.push(`/FailedRegister`);
-        });
-  }
+                if (response.status === 403){
+                    this.setState({message: "Wrong password"})
 
-  /**
-   *  Every time the user enters something in the input field, the state gets updated.
-   * @param key (the key of the state for identifying the field that needs to be updated)
-   * @param value (the value that gets assigned to the identified state key)
-   */
-  handleInputChange(key, value) {
-    // Example: if the key is username, this statement is the equivalent to the following one:
-    // this.setState({'username': value});
-    this.setState({ [key]: value });
-  }
 
-  /**
-   * componentDidMount() is invoked immediately after a component is mounted (inserted into the tree).
-   * Initialization that requires DOM nodes should go here.
-   * If you need to load data from a remote endpoint, this is a good place to instantiate the network request.
-   * You may call setState() immediately in componentDidMount().
-   * It will trigger an extra rendering, but it will happen before the browser updates the screen.
-   */
-  componentDidMount() {}
+                } else if (response.status === 404){
+                    this.setState({message: "User does not exist, please register first"})
 
-  render() {
-    return (
-        <BaseContainer>
-          <FormContainer>
-            <Form>
-              <Label>Username</Label>
-              <InputField
-                  placeholder="Enter here.."
-                  onChange={e => {
-                    this.handleInputChange("username", e.target.value);
-                  }}
-              />
-              <Label>Password</Label>
-              <InputField
-                  placeholder="Enter here.."
-                  onChange={e => {
-                    this.handleInputChange("password", e.target.value);
-                  }}
-              />
-              <ButtonContainer>
-                <Button
-                    disabled={!this.state.username || !this.state.password}
-                    width="50%"
-                    onClick={() => {
-                      this.login();
-                    }}
-                >
-                  Login
-                </Button>
-                <Button
-                    disabled={!this.state.username || !this.state.password}
-                    width="50%"
-                    onClick={() => {
-                      this.register();
-                    }}
-                >
-                  Register
-                </Button>
-              </ButtonContainer>
-            </Form>
-          </FormContainer>
-        </BaseContainer>
-    );
-  }
+                } else if (response.status === 409) {
+                    this.setState({message: "Username or password wrong"})
+
+                } else {
+
+                    response.json()
+                        .then(returnedUser => {
+                            const user = new User(returnedUser);
+                            localStorage.setItem("token", user.token);
+                            localStorage.setItem("username", user.username);
+                            localStorage.setItem("loggedInUserId", user.id);
+                            localStorage.setItem("creationDate", user.creationDate);
+                            this.props.history.push(`/game`);
+                        })
+                }
+            })
+
+            .catch(err => {
+                if (err.message.match(/Failed to fetch/)) {
+                    alert("The server cannot be reached. Did you start it?");
+                } else {
+                    alert(`Something went wrong during the login: ${err.message}`);
+                }
+            });
+    }
+
+    register() {
+        this.props.history.push(`/registration`);
+    }
+
+    /**
+     *  Every time the user enters something in the input field, the state gets updated.
+     * @param key (the key of the state for identifying the field that needs to be updated)
+     * @param value (the value that gets assigned to the identified state key)
+     */
+    handleInputChange(key, value) {
+        // Example: if the key is username, this statement is the equivalent to the following one:
+        // this.setState({'username': value});
+        this.setState({ [key]: value });
+    }
+
+    /**
+     * componentDidMount() is invoked immediately after a component is mounted (inserted into the tree).
+     * Initialization that requires DOM nodes should go here.
+     * If you need to load data from a remote endpoint, this is a good place to instantiate the network request.
+     * You may call setState() immediately in componentDidMount().
+     * It will trigger an extra rendering, but it will happen before the browser updates the screen.
+     */
+    componentDidMount() {}
+
+    render() {
+        return (
+            <BaseContainer>
+                <FormContainer>
+                    <Form>
+                        <Label>Username</Label>
+                        <InputField
+                            placeholder="Enter here.."
+                            onChange={e => {
+                                this.handleInputChange("username", e.target.value);
+                            }}
+                        />
+                        <Label>Password</Label>
+                        <InputField
+                            type="password"
+                            placeholder="Enter here.."
+                            onChange={e => {
+                                this.handleInputChange("password", e.target.value);
+                            }}
+                        />
+                        <Label>Login with your credentials. If you are a new user press the Register Button</Label>
+                        <ButtonContainer>
+                            <Button
+                                disabled={!this.state.username || !this.state.password}
+                                width="50%"
+                                onClick={() => {
+                                    this.login();
+                                }}
+                            >
+                                Login
+                            </Button>
+                            <Button
+                                width="50%"
+                                onClick={() => {
+                                    this.register();
+                                }}
+                            >
+                                Register
+                            </Button>
+                        </ButtonContainer>
+                    </Form>
+                </FormContainer>
+            </BaseContainer>
+        );
+    }
 }
 
 /**
